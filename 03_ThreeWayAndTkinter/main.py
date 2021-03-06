@@ -27,7 +27,7 @@ class Application(tkinter.Frame):
         self.game.hit(x, y)
         if self.game.won():
             tkinter.messagebox.showinfo("Congratulations", "You won!")
-            self.quit()
+            self.game.reset()
 
     def create_widgets(self):
         tkinter.Button(self, text='New',
