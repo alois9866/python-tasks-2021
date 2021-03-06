@@ -10,6 +10,8 @@ def neighbors(x: int, y: int):
 class Fifteen:
     """Represents a game of fifteen."""
 
+    winning_state = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12], [13, 14, 15, 0]]
+
     state: List[List[int]]  # 4 by 4, origin point is in upper left corner.
 
     def __init__(self):
@@ -24,6 +26,9 @@ class Fifteen:
         for x in range(4):
             for y in range(4):
                 self.state[x][y] = numbers[x * 4 + y]
+
+    def won(self) -> bool:
+        return self.state == self.winning_state
 
     def hit(self, x: int, y: int):
         """Tries to move the piece at (x, y) to the adjacent free piece, if possible."""

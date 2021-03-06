@@ -1,4 +1,5 @@
 import tkinter
+import tkinter.messagebox
 
 from fifteen import Fifteen
 
@@ -22,6 +23,12 @@ class Application(tkinter.Frame):
         f(*args)
         self.create_widgets()
 
+    def hit(self, x: int, y: int):
+        self.game.hit(x, y)
+        if self.game.won():
+            tkinter.messagebox.showinfo("Congratulations", "You won!")
+            self.quit()
+
     def create_widgets(self):
         tkinter.Button(self, text='New',
                        command=lambda: self.with_update(self.game.reset),
@@ -32,7 +39,7 @@ class Application(tkinter.Frame):
         for x in range(4):
             for y in range(4):
                 def hit(x=x, y=y):
-                    self.with_update(self.game.hit, x, y)
+                    self.with_update(self.hit, x, y)
 
                 tkinter.Button(self, text=number_to_piece(self.game.state[x][y]),
                                command=hit,
