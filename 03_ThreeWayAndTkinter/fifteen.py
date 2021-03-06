@@ -1,5 +1,5 @@
-from typing import List
 import random
+from typing import List
 
 
 def neighbors(x: int, y: int):
@@ -10,10 +10,13 @@ def neighbors(x: int, y: int):
 class Fifteen:
     """Represents a game of fifteen."""
 
-    state: List[List[int]] # 4 by 4, origin point is in upper left corner.
+    state: List[List[int]]  # 4 by 4, origin point is in upper left corner.
 
     def __init__(self):
         """Creates random game of fifteen."""
+        self.reset()
+
+    def reset(self):
         numbers = list(range(0, 15 + 1))
         random.shuffle(numbers)
 
