@@ -1,3 +1,4 @@
+import tkinter
 import tkinter.font
 
 DEFAULT_WIDTH = 7  # For default sized TkFixedFont on my machine.
@@ -67,3 +68,26 @@ class InputLabel(tkinter.Label):
                                                            lambda: self.place_configure(x=self.x() + DEFAULT_WIDTH))))
             self.bind("<Home>", lambda _: self.place_configure(x=0))
             self.bind("<End>", lambda _: self.place_configure(x=len(self.master.tv.get()) * DEFAULT_WIDTH))
+
+
+class App(tkinter.Frame):
+    def __init__(self, *args, **kwargs):
+        super().__init__(None, *args, **kwargs)
+        self.master.title("LabelEdit.py")
+
+        for obj in [self.master, self]:
+            obj.columnconfigure(0, weight=1)
+            obj.rowconfigure(0, weight=1)
+            obj.rowconfigure(1, weight=1)
+        self.grid(sticky=tkinter.N + tkinter.E + tkinter.W + tkinter.S)
+
+        label = InputLabel(self, textvariable=tkinter.StringVar(), anchor=tkinter.W, justify='left', font=tkinter.font.Font(font='TkFixedFont'))
+        label.grid(column=0, row=0, sticky=tkinter.N + tkinter.E + tkinter.W + tkinter.S)
+        label.focus_set()
+
+        tkinter.Button(self, text="Quit", command=self.master.quit) \
+            .grid(column=0, row=1, sticky=tkinter.N + tkinter.E + tkinter.W + tkinter.S)
+
+
+if __name__ == '__main__':
+    App().mainloop()
