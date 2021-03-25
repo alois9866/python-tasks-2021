@@ -29,7 +29,7 @@ class Ellipse:
         self.y0 = y
 
     def contains(self, x: int, y: int):
-        return (x - self.x0) ** 2 / self.width ** 2 + (y - self.y0) ** 2 / self.height ** 2
+        return ((x - self.x0) ** 2 / self.width ** 2 + (y - self.y0) ** 2 / self.height ** 2) <= 1
 
     def __str__(self) -> str:
         return f'{self.x0} {self.y0} {self.width} {self.height} {self.color} {self.border_width} {self.border_color}'
@@ -41,6 +41,7 @@ class Ellipse:
 class Editor(tkinter.Canvas):
     ellipses: List[Ellipse] = []
     button_down: bool = False
+    move_target: Ellipse = None
 
     def __init__(self, master, *args, **kw):
         super().__init__(master, *args, **kw)
@@ -58,16 +59,28 @@ class Editor(tkinter.Canvas):
     def prepare(self):
         def press(arg):
             self.button_down = True
-            self.ellipses.append(Ellipse(arg.x, arg.y))
+            for e in self.ellipses[::-1]:
+                if e.contains(arg.x, arg.y):
+                    self.move_target = e
+                    break
+            if self.move_target is None:
+                self.ellipses.append(Ellipse(arg.x, arg.y))
+            self.draw()
 
         def motion(arg):
             if self.button_down:
-                self.ellipses[-1].resize(arg.x, arg.y)
+                if self.move_target is None:
+                    self.ellipses[-1].resize(arg.x, arg.y)
+                else:
+                    self.move_target.move(arg.x, arg.y)
                 self.draw()
 
         def release(arg):
             self.button_down = False
-            self.ellipses[-1].resize(arg.x, arg.y)
+            if self.move_target is None:
+                self.ellipses[-1].resize(arg.x, arg.y)
+            else:
+                self.move_target = None
             self.draw()
 
         self.bind("<ButtonPress>", press, add=False)
