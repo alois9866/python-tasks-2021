@@ -5,19 +5,28 @@ from typing import List
 class Ellipse:
     x0: int
     y0: int
-    width: int = 0
-    height: int = 0
-    color: str = '#000'
-    border_width: int = '0'
-    border_color: str = '#000'
+    width: int
+    height: int
+    color: str
+    border_width: int
+    border_color: str
 
-    def __init__(self, x0: int, y0: int):
+    def __init__(self, x0: int, y0: int, width: int = 0, height: int = 0, color: str = '#000', border_width: int = 0, border_color: str = '#000'):
         self.x0 = x0
         self.y0 = y0
+        self.width = width
+        self.height = height
+        self.color = color
+        self.border_width = border_width
+        self.border_color = border_color
 
     def resize(self, x: int, y: int):
         self.width = x - self.x0
         self.height = y - self.y0
+
+    def move(self, x: int, y: int):
+        self.x0 = x
+        self.y0 = y
 
     def contains(self, x: int, y: int):
         return (x - self.x0) ** 2 / self.width ** 2 + (y - self.y0) ** 2 / self.height ** 2
@@ -48,7 +57,6 @@ class Editor(tkinter.Canvas):
 
     def prepare(self):
         def press(arg):
-            print(arg)
             self.button_down = True
             self.ellipses.append(Ellipse(arg.x, arg.y))
 
@@ -58,7 +66,6 @@ class Editor(tkinter.Canvas):
                 self.draw()
 
         def release(arg):
-            print(arg)
             self.button_down = False
             self.ellipses[-1].resize(arg.x, arg.y)
             self.draw()
@@ -85,12 +92,29 @@ class Text(tkinter.Text):
         super().__init__(master, *args, **kw)
         self.draw()
 
+    def correct_text(self):
+        # TODO
+        return True
+
+    def convert_text(self):
+        ellipses = []
+        txt: str = self.get(1.0, tkinter.END)
+        for line in txt.split('\n'):
+            line = line.strip()
+            if line == '':
+                continue
+            (x0, y0, width, height, color, border_width, border_color) = line.split(' ')
+            ellipses.append(Ellipse(int(x0), int(y0), int(width), int(height), color, int(border_width), border_color))
+        return ellipses
+
     def draw(self):
         self.delete(1.0, tkinter.END)
         self.insert(tkinter.END, '\n'.join(map(str, self.ellipses)))
 
     def send_to(self, editor: Editor):
         def f():
+            if self.correct_text():
+                self.ellipses = self.convert_text()
             editor.ellipses = self.ellipses.copy()
             print('editor', editor.ellipses)
             editor.draw()
