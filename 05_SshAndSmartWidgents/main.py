@@ -1,5 +1,8 @@
+import re
 import tkinter
 from typing import List
+
+color_re = re.compile(r'^#[0-9a-f]{3}$')
 
 
 class Ellipse:
@@ -21,8 +24,8 @@ class Ellipse:
         self.border_color = border_color
 
     def resize(self, x: int, y: int):
-        self.width = x - self.x0
-        self.height = y - self.y0
+        self.width = abs(x - self.x0)
+        self.height = abs(y - self.y0)
 
     def move(self, x: int, y: int):
         self.x0 = x
@@ -103,11 +106,37 @@ class Text(tkinter.Text):
 
     def __init__(self, master, *args, **kw):
         super().__init__(master, *args, **kw)
+        self.tag_config('error', background="#faa")
         self.draw()
 
     def correct_text(self):
-        # TODO
-        return True
+        correct = True
+        txt: str = self.get(1.0, tkinter.END)
+        self.delete(1.0, tkinter.END)
+        for line in txt.split('\n'):
+            line = line.strip()
+            if line == '':
+                continue
+            params = line.split(' ')
+            if len(params) != 7:
+                correct = False
+                self.insert(tkinter.END, line + '\n', 'error')
+                continue
+            try:
+                int(params[0])
+                int(params[1])
+                assert int(params[2]) >= 0
+                assert int(params[3]) >= 0
+                assert color_re.match(params[4])
+                assert int(params[5]) >= 0
+                assert color_re.match(params[6])
+            except:
+                correct = False
+                self.insert(tkinter.END, line + '\n', 'error')
+                continue
+            self.insert(tkinter.END, line + '\n')
+
+        return correct
 
     def convert_text(self):
         ellipses = []
@@ -146,7 +175,7 @@ class App(tkinter.Frame):
             obj.rowconfigure(1, weight=1)
         self.grid(sticky=tkinter.N + tkinter.E + tkinter.W + tkinter.S)
 
-        text = Text(self)
+        text = Text(self, width=40)
         text.grid(column=0, row=0, sticky=tkinter.N + tkinter.E + tkinter.W + tkinter.S)
 
         editor = Editor(self)
